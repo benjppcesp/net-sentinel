@@ -1,18 +1,16 @@
 name: Build and Publish Docker Image
 
-# 1. Este pipeline se ejecutará SOLO cuando hagas un push a la rama 'main'.
 on:
   push:
     branches: [ "main" ]
+
 env:
   REGISTRY: ghcr.io
-  benjppcesp/net-sentinel: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}
 
-# 3. Job
-# -------------------
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -21,8 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Paso B: Iniciar sesión en el Registro de Contenedores de GitHub (GHCR)
-      # Usa el token automático, no necesitas configurar nada.
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
@@ -30,18 +26,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Paso C: Extraer metadatos (tags, etiquetas) para Docker
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.benjppcesp}}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=latest
             type=sha
 
-      # Paso D: Construir la imagen y subirla (Build & Push)
-      # Aquí es donde Docker lee el  Dockerfile 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
