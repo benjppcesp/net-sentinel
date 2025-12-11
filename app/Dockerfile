@@ -11,8 +11,13 @@ RUN apk add --no-cache git ca-certificates
 # Copy module files
 COPY go.mod go.sum ./
 
-# Download dependencies (sin verify para evitar problemas)
-RUN go mod download
+# Debug: show what we copied
+RUN echo "=== Contents of /src ===" && ls -la && \
+    echo "=== go.mod content ===" && cat go.mod && \
+    echo "=== go.sum exists? ===" && ls -la go.sum
+
+# Download dependencies with verbose output
+RUN go mod download -x 2>&1 || (echo "DOWNLOAD FAILED"; exit 1)
 
 # Copy source code
 COPY . .
