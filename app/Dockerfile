@@ -5,19 +5,19 @@ FROM golang:${GO_VERSION}-alpine AS builder
 
 WORKDIR /src
 
-# Install git (some packages may need it), ca-certificates if needed
+# Install git (needed for some module downloads) and ca-certificates if needed
 RUN apk add --no-cache git ca-certificates
 
-# Copy module files and the vendor directory (cache-friendly)
+# 1. Copy module files and download dependencies (cache friendly)
 COPY go.mod go.sum ./
-COPY vendor ./vendor
+# (opcional) si usas vendor, COPY vendor ./vendor y usar -mod=vendor
+# RUN go mod download   <-- esta línea puede fallar si go.mod es inválido
 
-# Copy the rest of the source
+# 2. Copy the rest of the source
 COPY . .
 
-# Build using the vendor directory to avoid network access
-ENV CGO_ENABLED=0
-RUN GOOS=linux GOFLAGS="-mod=vendor" go build -ldflags="-s -w" -o /net-sentinel ./cmd/net-sentinel
+# 3. Build a static linux binary
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /net-sentinel ./cmd/net-sentinel
 
 #-----------------
 # RUNTIME 
