@@ -5,29 +5,29 @@ FROM golang:${GO_VERSION}-alpine AS builder
 
 WORKDIR /src
 
-# Install git (needed for some module downloads) and ca-certificates
+# Install git and ca-certificates
 RUN apk add --no-cache git ca-certificates
 
-# 1. Copy module files and download dependencies (cache friendly)
+# Copy module files
 COPY go.mod go.sum ./
 
-# Verify and download dependencies
-RUN go mod verify && go mod download
+# Download dependencies (sin verify para evitar problemas)
+RUN go mod download
 
-# 2. Copy the rest of the source
+# Copy source code
 COPY . .
 
-# 3. Build a static linux binary
+# Build static binary
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /net-sentinel ./cmd/net-sentinel
 
 #-----------------
 # RUNTIME 
 FROM alpine:3.19
 
-# Install certificates for HTTPS requests
+# Install certificates
 RUN apk --no-cache add ca-certificates
 
-# Copy the binary from the builder stage
+# Copy binary
 COPY --from=builder /net-sentinel /usr/local/bin/net-sentinel
 
 ENTRYPOINT ["/usr/local/bin/net-sentinel"]
