@@ -11,7 +11,7 @@ RUN apk add --no-cache git ca-certificates
 # 1. Copy module files and download dependencies (cache friendly)
 COPY go.mod go.sum ./
 # (opcional) si usas vendor, COPY vendor ./vendor y usar -mod=vendor
-# RUN go mod download   <-- esta línea puede fallar si go.mod es inválido
+ RUN go mod download   <-- esta línea puede fallar si go.mod es inválido
 
 # 2. Copy the rest of the source
 COPY . .
