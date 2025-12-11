@@ -13,7 +13,7 @@ COPY go.mod .
 COPY go.sum .
 
 # Descargamos las dependencias. -mod=readonly asegura que no se cambien las dependencias.
-RUN go mod download -mod=readonly
+RUN go mod download 
 
 # Copiamos el código fuente de nuestra sonda
 COPY main.go .
