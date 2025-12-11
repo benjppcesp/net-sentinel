@@ -7,16 +7,12 @@ FROM golang:1.21-alpine AS builder
 # Establecemos el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiamos los archivos de definición de módulos (go.mod y go.sum)
-# Esto permite a Docker cachear la descarga de dependencias
-COPY go.mod .
-COPY go.sum .
 
-# Descargamos las dependencias. -mod=readonly asegura que no se cambien las dependencias.
-RUN go mod download 
+RUN apk add --no-cache git
 
-# Copiamos el código fuente de nuestra sonda
-COPY main.go .
+COPY . .
+
+RUN go mod download
 
 # Compilamos la aplicación. 
 # - CGO_ENABLED=0: Asegura que el binario no dependa de librerías del sistema operativo (estático).
