@@ -12,7 +12,6 @@ RUN apk add --no-cache git
 
 COPY . .
 
-RUN go mod download
 
 # Compilamos la aplicación. 
 # - CGO_ENABLED=0: Asegura que el binario no dependa de librerías del sistema operativo (estático).
