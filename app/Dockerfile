@@ -8,14 +8,13 @@ WORKDIR /src
 # Install git (needed for some module downloads) and ca-certificates if needed
 RUN apk add --no-cache git ca-certificates
 
-# 1. Copy module files and download dependencies (cache friendly)
+# Copy module files (keeps caching possible) and skip explicit go mod download
 COPY go.mod go.sum ./
-RUN go mod download
 
-# 2. Copy the rest of the source
+# Copy the rest of the source
 COPY . .
 
-# 3. Build a static linux binary
+# Build a static linux binary (go build will fetch modules if needed)
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /net-sentinel ./cmd/net-sentinel
 
 #-----------------
