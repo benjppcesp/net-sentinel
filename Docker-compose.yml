@@ -8,10 +8,8 @@ services:
     restart: always # Si falla, se reinicia sola 
     ports:
       - "2112:2112"
-    environment:
-      - TARGET_URL=https://www.google.com
     networks:
-      - monitoring-net
+      - monitoring-network
 
   # 2. Watchtower 
   # Este contenedor vigila si subimos cambios  a GitHub.
@@ -33,7 +31,17 @@ services:
     ports:
       - "9090:9090"
     networks:
-      - monitoring-net
+      - monitoring-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - monitoring-network
 
 networks:
   monitoring-net:

@@ -9,14 +9,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-// CONFIGURACIÓN
-// ----------------
-// Target: El sitio web que usaremos para medir la calidad de la red.
-// En una empresa real, probarías contra sus propios servidores o Google/Cloudflare.
-const targetURL = "https://www.google.com"
+const targetURL = "https://www.bing.com"
 
 // VARIABLES DE MÉTRICAS (PROMETHEUS)
-// ----------------------------------
 // Usamos "Gauge" (Medidor) porque el valor puede subir y bajar (como un velocímetro).
 var (
 	// Métrica 1: Latencia (Cuánto tarda en responder la web)
@@ -32,9 +27,8 @@ var (
 	})
 )
 
-// INICIALIZACIÓN
-// --------------
-// Aquí "registramos" nuestras variables para que Prometheus sepa que existen.
+
+// Registrar variables para que prometheus sepa que eisten
 func init() {
 	prometheus.MustRegister(httpDuration)
 	prometheus.MustRegister(httpSuccess)

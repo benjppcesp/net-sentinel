@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 5s #Cada cuanto tiempo prometheus pedira datos a la sonda
+
+scrape_cofigs:
+  - jobs_name: 'net-sentinel'
+  statics_configs:
+    - targets: ['net-sentinel:2112']
