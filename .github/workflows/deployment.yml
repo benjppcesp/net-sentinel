@@ -45,13 +45,6 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
 
-      - name: Debug - Show go.mod and go.sum
-        run: |
-          echo "=== go.mod ==="
-          cat app/go.mod
-          echo "=== go.sum (first 20 lines) ==="
-          head -20 app/go.sum
-
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
@@ -61,7 +54,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            GO_VERSION=1.21.5
+            GO_VERSION=1.23.0
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
