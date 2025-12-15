@@ -1,0 +1,18 @@
+
+# Targets para monitoreo HTTP
+http_targets:
+  - url: "https://www.bing.com"
+    name: "Bing"
+  - url: "https://www.google.com"
+    name: "Google"
+
+# Targets para monitoreo de PING 
+ping_targets:
+  - host: "8.8.8.8"
+    name: "Google DNS"
+  - host: "1.1.1.1"
+    name: "Cloudflare DNS"
+  - host: "google.com"
+    name: "Google"
+  - host: "github.com"
+    name: "GitHub"
