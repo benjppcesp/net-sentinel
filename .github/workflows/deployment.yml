@@ -62,3 +62,4 @@ jobs:
 
       - name: Image digest
         run: echo "Tags created:" && echo "${{ steps.meta.outputs.tags }}"
+
