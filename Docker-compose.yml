@@ -2,17 +2,16 @@ version: '3.8'
 
 services:
   net-sentinel:
-    # 1. Tu Sonda en Go (La protagonista)
     image: ghcr.io/benjppcesp/net-sentinel:latest
     container_name: net-sentinel
-    restart: always # Si falla, se reinicia sola
+    restart: always
     ports:
       - "2112:2112"
     volumes:
       - ./config.yaml:/app/config.yaml
+    command: [ "-config", "/app/config.yaml" ]
     networks:
       - monitoring-network
-
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
@@ -46,7 +45,7 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     volumes:
-      - grafana_data:/var/lib/grafana 
+      - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
     environment:
