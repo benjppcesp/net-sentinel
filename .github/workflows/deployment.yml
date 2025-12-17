@@ -1,8 +1,9 @@
-name: Build and Publish Docker Image
+name: Build and Deploy
 
 on:
   push:
     branches: [ "main" ]
+    tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "main" ]
 
@@ -16,6 +17,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      docker_tag: ${{ steps.meta.outputs.version }}
+      docker_tags: ${{ steps.meta.outputs.tags }}
 
     steps:
       - name: Checkout repository
@@ -40,10 +44,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/net-sentinel
           tags: |
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix={{branch}}-
             type=ref,event=branch
             type=ref,event=pr
+            type=semver,pattern={{version}}
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -63,3 +68,62 @@ jobs:
       - name: Image digest
         run: echo "Tags created:" && echo "${{ steps.meta.outputs.tags }}"
 
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted
+    if: github.event_name != 'pull_request'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull latest image
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="${{ needs.build-and-push.outputs.docker_tag }}"
+          
+          echo "Pulling image: ghcr.io/${REPO_OWNER}/net-sentinel:${IMAGE_TAG}"
+          docker pull "ghcr.io/${REPO_OWNER}/net-sentinel:${IMAGE_TAG}"
+
+      - name: Stop and remove existing container
+        run: |
+          if docker ps -a --format '{{.Names}}' | grep -q '^net-sentinel$'; then
+            echo "Stopping existing container..."
+            docker stop net-sentinel || true
+            docker rm net-sentinel || true
+          fi
+        continue-on-error: true
+
+      - name: Deploy new container
+        run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_TAG="${{ needs.build-and-push.outputs.docker_tag }}"
+          
+          docker run -d \
+            --name net-sentinel \
+            --restart unless-stopped \
+            -p 8080:8080 \
+            -v /var/log/net-sentinel:/logs \
+            "ghcr.io/${REPO_OWNER}/net-sentinel:${IMAGE_TAG}"
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          if docker ps | grep -q net-sentinel; then
+            echo "✅ Deployment successful!"
+            docker ps --filter name=net-sentinel --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          else
+            echo "❌ Deployment failed!"
+            docker logs net-sentinel
+            exit 1
+          fi
+
+      - name: Cleanup old images
+        run: |
+          echo "Cleaning up old images..."
+          docker image prune -af --filter "label=org.opencontainers.image.source=https://github.com/${{ github.repository }}"
+        continue-on-error: true
