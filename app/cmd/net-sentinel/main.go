@@ -3,13 +3,18 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-const targetURL = "https://www.bing.com"
+var (
+	targetURL      string
+	checkInterval  time.Duration
+	requestTimeout time.Duration
+)
 
 var (
 	httpDuration = prometheus.NewHistogram(prometheus.HistogramOpts{
@@ -17,7 +22,7 @@ var (
 		Help:    "Tiempo de respuesta de la petición HTTP",
 		Buckets: prometheus.DefBuckets,
 	})
-	
+
 	httpSuccess = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "net_sentinel_http_success",
 		Help: "Estado de la conexión: 1 si fue exitosa, 0 si falló",
@@ -27,12 +32,41 @@ var (
 func init() {
 	prometheus.MustRegister(httpDuration)
 	prometheus.MustRegister(httpSuccess)
+
+	loadConfig()
+}
+
+func loadConfig() {
+	targetURL = getENV("TARGET_URL", "https://www.bing.com")
+	checkInterval = getDurationEnv("CHECK_INTERVAL", 5*time.Second)
+	requestTimeout = getDurationEnv("REQUEST_TIMEOUT", 5*time.Second)
+
+}
+
+func getENV(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+func getDurationEnv(key string, defaultValue time.Duration) time.Duration {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+
+	duration, err := time.ParseDuration(value)
+	if err != nil {
+		panic(fmt.Sprintf("variable %s invalida: %s"))
+	}
+	return duration
 }
 
 func probeNetwork() {
 	go func() {
 		client := &http.Client{
-			Timeout: 5 * time.Second,
+			Timeout: requestTimeout,
 		}
 
 		for {
@@ -51,7 +85,7 @@ func probeNetwork() {
 				resp.Body.Close()
 			}
 
-			time.Sleep(5 * time.Second)
+			time.Sleep(checkInterval)
 		}
 	}()
 }

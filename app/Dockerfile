@@ -31,3 +31,6 @@ RUN apk --no-cache add ca-certificates
 COPY --from=builder /net-sentinel /usr/local/bin/net-sentinel
 
 ENTRYPOINT ["/usr/local/bin/net-sentinel"]
+
+RUN addgroup -S sentinel && adduser -S sentinel -G sentinel
+USER sentinel

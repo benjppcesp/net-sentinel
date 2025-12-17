@@ -1,19 +1,43 @@
 version: '3.8'
 
+x-loggin: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
 services:
   net-sentinel:
-    image: ghcr.io/benjppcesp/net-sentinel:latest
+    image: ghcr.io/benjppcesp/net-sentinel:v1
+    logging: *default-logging
     container_name: net-sentinel
-    restart: always
+    restart: unless-stopped
     ports:
       - "2112:2112"
+
+    user: "1000:1000"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+    mem_limit: 512m
+    cpus: 0.5
+
+    environment:
+      - TARGET_URL=https://www.bing.com
+
     volumes:
-      - ./config.yaml:/app/config.yaml
+      - ./config.yaml:/app/config.yaml:ro
+
     command: [ "-config", "/app/config.yaml" ]
+
     networks:
       - monitoring-network
   watchtower:
     image: containrrr/watchtower
+    logging: *default-logging
     container_name: watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -23,7 +47,7 @@ services:
       - monitoring-network
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3
     container_name: prometheus
     restart: unless-stopped
     ports:
@@ -42,14 +66,14 @@ services:
       - net-sentinel
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:main-ubuntu
     container_name: grafana
     volumes:
       - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+    env_file:
+      - .env
     networks:
       - monitoring-network
 
