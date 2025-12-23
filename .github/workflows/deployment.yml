@@ -1,3 +1,7 @@
+permissions:
+  contents: read
+  packages: read
+
 name: Build & Deploy Net-Sentinel
 
 on:
@@ -36,4 +40,12 @@ jobs:
         run: |
           bash scripts/deploy.sh
 
-        
+            - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+            -u ${{ github.actor }} \
+            --password-stdin
+
+      - name: Deploy application
+        run: |
+          bash scripts/deploy.sh
