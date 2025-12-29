@@ -97,23 +97,30 @@ func main() {
 	}
 	sonda.RunProbe()
 
+	muxMetrics := http.NewServerMux()
+	muxMetrics.Handle("/metrics", promhttp.Handler())
+
 	go func() {
 		fmt.Println("📊 Métricas en :2112/metrics")
-		http.Handle("/metrics", promhttp.Handler())
-		http.ListenAndServe(":2112", nil)
+		if err := http.ListenAndServe(":2112", muxMetrics); err
+			fmt.Printf("error de Metrcias: %v\n", err)
+		
 	}()
 	// Endopoint de API (Puerto 8080)
-	http.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+	muxAPI := http.NewServerMux()
+	muxAPI.HandleFunc("/status", func (w http.ResponseWriter, r *http.Reques)  {
 		apiRequest.Inc()
-		w.Header().Set("Content-type", "application/json")
+		w.Header().Set("content-type", "application/json")
 		sonda.mu.RLock()
 		json.NewEncoder(w).Encode(sonda)
 		sonda.mu.RUnlock()
-
 	})
 
+
 	fmt.Println("🚀 API de Control en :8080/status")
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", muxAPI); err != nil {
+		fmt.Printf("Error de API: %v\n", err)
+	}
 }
 
 func getENV(key, defaultValue string) string {
