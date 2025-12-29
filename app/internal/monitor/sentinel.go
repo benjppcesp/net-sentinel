@@ -34,8 +34,6 @@ type Sentinel struct {
 	Interval  time.Duration
 	client    *http.Client
 	mu        sync.RWMutex
-	IsUp      bool
-	Latency   time.Duration
 }
 
 func NewSentinel(url string, interval time.Duration) *Sentinel {
@@ -72,11 +70,11 @@ func (s *Sentinel) Check(ctx context.Context) {
 	opsProcessed.Inc() // Incrementamos contador total
 
 	if err != nil {
-		isUpMetric.WithLabelValues(s.TargetURL).Set(0)
+		IsUpMetric.WithLabelValues(s.TargetURL).Set(0)
 		log.Printf("❌ %s está DOWN", s.TargetURL)
 	} else {
 		defer resp.Body.Close()
-		isUpMetric.WithLabelValues(s.TargetURL).Set(1)
+		IsUpMetric.WithLabelValues(s.TargetURL).Set(1)
 		latencyMetric.WithLabelValues(s.TargetURL).Observe(duration.Seconds())
 		log.Printf("✅ %s está UP (%v)", s.TargetURL, duration)
 	}
