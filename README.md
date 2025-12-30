@@ -62,7 +62,9 @@ cd net-sentinel
 # 2. Configurar variables de entorno
 cp .env.example .env
 
+# 3. Desplegar el stack completo (App + Prometheus + Grafana)
+docker-compose up -d
+
 <p align="center">
   <img src="./assets/dashboard-preview.png" width="900" alt="Grafana Dashboard Preview">
-</p># 3. Desplegar el stack completo (App + Prometheus + Grafana)
-docker-compose up -d
+</p>
