@@ -41,7 +41,7 @@ El proyecto incluye un dashboard preconfigurado. Para usarlo:
 2.  Conecta con el Data Source de Prometheus (`http://prometheus:9090`).
 
  ## Visualización de Métricas
-![Dashboard de Net-Sentinel](./assets/dashboard-preview.png)
+![Dashboard de Net-Sentinel](app/assets/dashboard-preview.png)
 
 ### Métricas Clave Expuestas:
 * `net_sentinel_http_success`: `1` si el objetivo es alcanzable, `0` si falla.
