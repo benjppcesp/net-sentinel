@@ -40,6 +40,9 @@ El proyecto incluye un dashboard preconfigurado. Para usarlo:
 1.  Importa el archivo JSON ubicado en `/grafana/dashboards/net-sentinel.json`.
 2.  Conecta con el Data Source de Prometheus (`http://prometheus:9090`).
 
+ ## Visualización de Métricas
+![Dashboard de Net-Sentinel](./assets/dashboard-preview.png)
+
 ### Métricas Clave Expuestas:
 * `net_sentinel_http_success`: `1` si el objetivo es alcanzable, `0` si falla.
 * `net_sentinel_http_duration_seconds`: Latencia de la petición HTTP en segundos.
@@ -65,6 +68,3 @@ cp .env.example .env
 # 3. Desplegar el stack completo (App + Prometheus + Grafana)
 docker-compose up -d
 
-<p align="center">
-  <img src="./assets/dashboard-preview.png" width="900" alt="Grafana Dashboard Preview">
-</p>
