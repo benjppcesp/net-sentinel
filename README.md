@@ -1,7 +1,9 @@
 # 🛡️ Net-Sentinel: Network Monitoring Probe
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/benjppcesp/net-sentinel)](https://goreportcard.com/report/github.com/benjppcesp/net-sentinel)
-[![Docker Image CI](https://github.com/benjppcesp/net-sentinel/actions/workflows/docker-image.yml/badge.svg)](https://github.com/benjppcesp/net-sentinel/actions)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=Prometheus&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=Grafana&logoColor=white)
 
 **Net-Sentinel** es una sonda de monitoreo de red desarrollada en **Go** diseñada para la observabilidad de servicios críticos. Realiza chequeos de disponibilidad y latencia, exponiendo métricas nativas para **Prometheus** y visualización profesional en **Grafana**.
 
@@ -60,5 +62,7 @@ cd net-sentinel
 # 2. Configurar variables de entorno
 cp .env.example .env
 
-# 3. Desplegar el stack completo (App + Prometheus + Grafana)
+<p align="center">
+  <img src="./assets/dashboard-preview.png" width="900" alt="Grafana Dashboard Preview">
+</p># 3. Desplegar el stack completo (App + Prometheus + Grafana)
 docker-compose up -d
